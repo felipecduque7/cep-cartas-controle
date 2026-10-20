@@ -1,0 +1,28 @@
+{
+  "Unit": "",
+  "Measured_at": "2026-10-13 16:00:00",
+  "Created_by": "exemplo simulado (cep-cartas-controle)",
+  "Type": "P",
+  "Goal": "Acompanhar",
+  "LSE": null,
+  "LIE": null,
+  "Label": "Placas reprovadas – acompanhamento com limites no arquivo (exemplo)",
+  "Data": [
+    [8, 100],
+    [2, 100],
+    [8, 100],
+    [5, 100],
+    [3, 100],
+    [5, 100],
+    [5, 100],
+    [6, 100],
+    [4, 100],
+    [15, 100],
+    [7, 100],
+    [14, 100],
+    [13, 100],
+    [11, 100],
+    [13, 100]
+  ],
+  "Limites": {"LC": 0.05}
+}

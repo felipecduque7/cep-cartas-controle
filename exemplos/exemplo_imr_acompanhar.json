@@ -1,0 +1,32 @@
+{
+  "Unit": "°C",
+  "Measured_at": "2026-10-12 08:00:00",
+  "Created_by": "exemplo simulado (cep-cartas-controle)",
+  "Type": "IMR",
+  "Goal": "Acompanhar",
+  "LSE": 27.0,
+  "LIE": 23.0,
+  "Label": "Temperatura do dissipador – acompanhamento (exemplo)",
+  "Data": [
+    [24.53],
+    [25.07],
+    [25.26],
+    [25.26],
+    [25.71],
+    [25.69],
+    [25.9],
+    [25.85],
+    [25.03],
+    [25.09],
+    [26.14],
+    [25.36],
+    [25.6],
+    [26.03],
+    [25.54],
+    [25.47],
+    [26.07],
+    [26.34],
+    [25.29],
+    [25.98]
+  ]
+}
