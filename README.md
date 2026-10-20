@@ -1,28 +1,95 @@
 # CEP – Cartas de Controle
 
-Software de Controle Estatístico de Processos (CEP) da disciplina **Controle Estatístico Remoto
-de Processos** (Engenharia Eletrônica – FGA/UnB, 2º/2026).
+[![testes](https://github.com/felipecduque7/cep-cartas-controle/actions/workflows/testes.yml/badge.svg)](https://github.com/felipecduque7/cep-cartas-controle/actions/workflows/testes.yml)
+![Python](https://img.shields.io/badge/python-3.9%2B-3776ab)
+![Licença](https://img.shields.io/badge/licen%C3%A7a-MIT-green)
 
-O programa lê um arquivo JSON com o plano da análise (tipo de carta, objetivo, limites de
-especificação e medições) e faz:
+Software em Python para **Controle Estatístico de Processos (CEP)**. Ele lê um plano de análise em
+JSON, calcula os limites das cartas de controle, aponta sinais de alerta, estima deslocamentos e a
+chance de a carta detectá-los, avalia a capacidade do processo e gera um relatório PDF com tudo o
+que foi feito.
 
-- a escolha e a validação da carta (X-barra e R, R, I-AM, p, np, c, u);
-- a **calibração** (Fase I), com limites tentativos e revisados (LSC, LC, LIC);
-- o **acompanhamento** (Fase II), com os limites calibrados;
-- os **sinais de alerta** (regras Western Electric e tendência) e os pontos fora de controle;
-- a **análise de deslocamento e tendência**, com a probabilidade de sucesso (detectar), de
-  falha (β) e o número de tentativas (CMC);
-- a **capacidade** do processo (RCP e RCPk) em relação a LSE e LIE;
-- gráficos e um **relatório PDF cumulativo** com tudo o que foi feito na sessão.
+Projeto da disciplina **Controle Estatístico Remoto de Processos** (Engenharia Eletrônica –
+FGA/UnB, 2º/2026). Referência: Montgomery & Runger, *Estatística Aplicada e Probabilidade para
+Engenheiros* (LTC).
 
-Também inclui uma calculadora de probabilidades (binomial, arranjos, combinações, geométrica,
-Poisson), um guia de escolha da carta e um **módulo de entrada de medições** (teclado, arquivo
-CSV ou porta serial de um Arduino/ESP32).
+![Cartas X-barra e R com os limites revisados do simulado](docs/img/carta_limites_revisados.png)
 
-Referência principal: Montgomery & Runger, *Estatística Aplicada e Probabilidade para
-Engenheiros*, LTC – capítulo de Controle Estatístico da Qualidade.
+## Destaques
+
+- **7 cartas de controle:** X-barra e R, R, I-AM, p, np, c e u, com fórmulas e fatores do livro.
+- **Calibração (Fase I) e acompanhamento (Fase II):** limites tentativos e revisados, com retirada
+  dos pontos fora de controle; o acompanhamento reaproveita a calibração salva.
+- **Sinais de alerta:** regras Western Electric e tendência, com os pontos de cada sinal.
+- **Deslocamento e probabilidades:** mudança de nível (com correção de Bonferroni), tendência,
+  β, probabilidade de detecção e CMC, calculados pela distribuição exata de cada carta
+  (normal, binomial, Poisson ou amplitude).
+- **Capacidade:** RCP, RCPk, Pp, Ppk e fração estimada fora da especificação.
+- **Relatório PDF cumulativo** com interpretação em texto, tabelas e gráficos.
+- **Três formas de uso:** menu no terminal, linha de comando e uma página web opcional (Streamlit).
+- **Módulo de entrada:** medições por teclado, arquivo CSV ou porta serial (Arduino/ESP32).
+- **122 testes automatizados**, incluindo o gabarito conferido à mão e 60 conjuntos de dados
+  aleatórios, rodando no GitHub Actions em Linux e Windows.
+
+## Em 1 minuto
+
+```bash
+python -m pip install -r requirements.txt
+python main.py                                        # menu interativo
+python main.py dados/dados_simulado_prova_1_0226.json # ou direto pela linha de comando
+```
+
+Resultado para o simulado da disciplina (20 subgrupos de 5 medições):
+
+| | Resultado |
+|---|---|
+| Limites revisados da X-barra | LIC 4,9496 · LC 4,9612 · LSC 4,9728 mm |
+| Subgrupos retirados na calibração | 2, 9 e 17 |
+| Mudança de nível | +1,47σ depois do subgrupo 10 |
+| Probabilidade de detectar esse deslocamento | 0,61 por amostra (CMC = 1,64) |
+| Capacidade | RCPk = 1,49 · Ppk = 1,16 |
+
+O relatório completo gerado pelo programa está em [`docs/relatorio_exemplo.pdf`](docs/relatorio_exemplo.pdf).
+
+## Interface web
+
+![Página web com o resumo da análise](docs/img/web_resumo.png)
+
+![Aba de cartas da página web](docs/img/web_cartas.png)
+
+| Acompanhamento com os limites calibrados | Capacidade do processo |
+|---|---|
+| ![Carta de acompanhamento](docs/img/carta_acompanhamento.png) | ![Histograma de capacidade](docs/img/capacidade.png) |
+
+## Arquitetura
+
+```text
+main.py / menu.py / app.py   interfaces (terminal, linha de comando, web)
+          │
+processamento.py             sessão: lê, analisa, salva, desenha e registra
+          │
+leitura → cartas → analise   motor de cálculo, independente das interfaces
+regras · deslocamento · capacidade · probabilidade · calibracoes · constantes
+          │
+graficos · apresentacao · relatorio   saída: PNG, textos e PDF
+```
+
+O motor de cálculo não importa o menu nem o PDF. Por isso a mesma análise roda no terminal, na
+página web e nos testes, e pode virar um serviço HTTP nos próximos projetos da disciplina.
+
+## English summary
+
+Python tool for **Statistical Process Control**. It reads a JSON plan, runs Phase I calibration and
+Phase II monitoring for X-bar/R, I-MR, p, np, c and u charts, applies the Western Electric rules,
+estimates level shifts and trends, computes detection probability and ARL from each chart's exact
+distribution, reports process capability (Cp, Cpk, Pp, Ppk) and builds a cumulative PDF report.
+It ships with a terminal menu, a CLI, an optional Streamlit web app, serial-port data acquisition
+(Arduino/ESP32) and 122 automated tests. Course project, Electronic Engineering, University of
+Brasília.
 
 ---
+
+# Documentação
 
 ## 1. Instalação
 
@@ -314,26 +381,11 @@ recebendo o JSON por HTTP e devolvendo os resultados.
 - Controle por confiabilidade e por degradação e estimativa de parâmetros de f.d.p., que estão
   na ementa, não fazem parte desta versão.
 
-## 9. Repositório
+## 9. Relato da equipe
 
-```bash
-git init
-git add .
-git commit -m "Primeira versão do software de cartas de controle"
-git branch -M main
-git remote add origin https://github.com/USUARIO/cep-cartas-controle.git
-git push -u origin main
-```
+O relato do que a equipe fez, decidiu e aprendeu está em
+[`docs/RELATO_DA_EQUIPE.md`](docs/RELATO_DA_EQUIPE.md).
 
-A pasta `saida/` (relatórios, gráficos e calibrações gerados) fica fora do repositório (`.gitignore`); as medições registradas em `entradas/` entram, porque são dados.
+## 10. Licença
 
-## 10. Relato da equipe
-
-> **Esta seção deve ser escrita pela equipe, com as próprias palavras.** Ela não foi preenchida
-> de propósito. Sugestões do que abordar:
->
-> - Qual problema o software resolve e como vocês organizaram o trabalho.
-> - Como o programa escolhe a carta e por que a calibração retira pontos e recalcula os limites.
-> - O que mostram as regras de alerta e a análise de deslocamento no simulado da prova.
-> - O que significam, na prática, a probabilidade de sucesso, β e o CMC.
-> - Dificuldades encontradas, decisões tomadas e o que ainda falta confirmar.
+Distribuído sob a licença MIT. Veja [`LICENSE`](LICENSE).
