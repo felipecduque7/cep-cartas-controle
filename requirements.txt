@@ -1,0 +1,7 @@
+numpy>=1.21
+matplotlib>=3.5
+reportlab>=3.6
+# opcional: leitura de medições pela porta serial (Arduino/ESP32)
+pyserial>=3.5
+# opcional: testes automatizados
+pytest>=7

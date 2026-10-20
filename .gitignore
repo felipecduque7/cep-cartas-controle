@@ -1,0 +1,16 @@
+# saídas geradas pelo programa (relatórios, gráficos e calibrações)
+saida/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# sistema e editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
