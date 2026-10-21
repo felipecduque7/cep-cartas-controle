@@ -381,9 +381,9 @@ recebendo o JSON por HTTP e devolvendo os resultados.
 - Controle por confiabilidade e por degradação e estimativa de parâmetros de f.d.p., que estão
   na ementa, não fazem parte desta versão.
 
-## 9. Relato da equipe
+## 9. Relato do Projeto
 
-O relato do que a equipe fez, decidiu e aprendeu está em
+O relato do que eu fez, decidi e aprendi está em
 [`docs/RELATO_DA_EQUIPE.md`](docs/RELATO_DA_EQUIPE.md).
 
 ## 10. Licença
