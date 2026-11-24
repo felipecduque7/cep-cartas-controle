@@ -4,6 +4,7 @@ Compila o teste em C++ com o g++ do computador; sem compilador, os testes são p
 """
 
 import json
+import os
 import random
 import shutil
 import subprocess
@@ -23,7 +24,7 @@ def executavel(tmp_path_factory):
     compilador = shutil.which("g++")
     if not compilador:
         pytest.skip("g++ não encontrado")
-    saida = tmp_path_factory.mktemp("firmware") / "teste_cep"
+    saida = tmp_path_factory.mktemp("firmware") / ("teste_cep.exe" if os.name == "nt" else "teste_cep")
     subprocess.run([compilador, "-std=c++11", "-O2", "-Wall", "-Wextra", "-Werror", "-o", str(saida), str(FONTE)],
                    check=True, capture_output=True, text=True)
     return str(saida)

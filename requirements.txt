@@ -1,6 +1,8 @@
 numpy>=1.21
 matplotlib>=3.5
 reportlab>=3.6
+# o reportlab 5 não funciona no Python 3.9 (mas se instala nele mesmo assim)
+reportlab<5; python_version < "3.10"
 # opcional: leitura de medições pela porta serial (Arduino/ESP32)
 pyserial>=3.5
 # opcional: testes automatizados
