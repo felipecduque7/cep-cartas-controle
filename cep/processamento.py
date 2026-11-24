@@ -63,6 +63,13 @@ class Sessao:
     def processar_plano(self, plano: Plano, escolher: Optional[Escolhedor] = None,
                         calibracao_forcada: Optional[str] = None,
                         avisar: Callable[[str], None] = print) -> Resultado:
+        if (plano.objetivo != CALIBRAR and calibracao_forcada is None and not plano.limites_informados
+                and not plano.arquivo_calibracao and not self.calibracoes_candidatas(plano)):
+            # Monitorar sem limites e sem nenhuma calibração: os próprios dados estabelecem os limites.
+            plano.objetivo = CALIBRAR
+            plano.avisos.append("O arquivo pede acompanhamento, mas não traz limites e não há calibração "
+                                "disponível; os limites foram calculados (Fase I) com os próprios dados.")
+            avisar("Sem limites nem calibração disponível: calibrando com os próprios dados.")
         if plano.objetivo == CALIBRAR:
             resultado = calibrar(plano)
             caminho = calibracoes.salvar(resultado, self.pasta_saida)

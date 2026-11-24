@@ -47,9 +47,9 @@ def test_calibracao_salva_reproduz_os_limites(saida):
     assert r.series_finais[0].lsc[0] == pytest.approx(cal.series_finais[0].lsc[0])
 
 
-def test_acompanhamento_sem_calibracao_da_erro_claro(saida):
-    with pytest.raises(ErroDeLeitura, match="Não há calibração disponível"):
-        Sessao(saida).processar_arquivo(EXEMPLOS / "exemplo_c_acompanhar.json")
+def test_acompanhamento_sem_calibracao_calibra_com_os_dados(saida):
+    r = Sessao(saida).processar_arquivo(EXEMPLOS / "exemplo_c_acompanhar.json", avisar=lambda _t: None)
+    assert r.calibracao and any("Fase I" in a for a in r.plano.avisos)
 
 
 def test_calibracao_de_outro_processo_nao_e_usada(saida):

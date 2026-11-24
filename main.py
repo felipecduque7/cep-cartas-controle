@@ -55,6 +55,12 @@ def _dependencias_ok() -> bool:
         return True
     print(f"Faltam pacotes no Python que está rodando o programa: {', '.join(faltando)}.")
     print(f"Python em uso: {sys.executable}")
+    if "msys" in sys.executable.lower() or "mingw" in sys.executable.lower():
+        print("Este é o Python do MSYS2, que não instala esses pacotes pelo pip.")
+        print("Rode o programa com o Python da Microsoft Store ou do python.org, por exemplo:")
+        print("  python3.13 main.py      ou      py main.py")
+        print("e, se ainda faltar algo:  python3.13 -m pip install -r requirements.txt")
+        return False
     print("Instale com este mesmo Python (copie e cole o comando abaixo):")
     if sys.platform.startswith("win"):
         print(f'  PowerShell:         & "{sys.executable}" -m pip install -r requirements.txt')

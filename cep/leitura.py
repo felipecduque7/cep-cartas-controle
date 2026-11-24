@@ -710,9 +710,15 @@ def _ler_defeituosos(plano: Plano, dados: Sequence[Any], n_informado: Optional[L
             tamanhos = [float(len(linha)) for linha in linhas]
             plano.formato_dados = "itens inspecionados por amostra (1 = defeituoso, 0 = bom)"
         elif all(len(linha) == 2 for linha in linhas):
-            defeituosos = [linha[0] for linha in linhas]
-            tamanhos = [linha[1] for linha in linhas]
-            plano.formato_dados = "pares [defeituosos, tamanho da amostra]"
+            if all(linha[0] >= linha[1] for linha in linhas) and any(linha[0] > linha[1] for linha in linhas):
+                # pares na ordem [n, defeituosos] (o tamanho nunca é menor que os defeituosos)
+                defeituosos = [linha[1] for linha in linhas]
+                tamanhos = [linha[0] for linha in linhas]
+                plano.formato_dados = "pares [tamanho da amostra, defeituosos]"
+            else:
+                defeituosos = [linha[0] for linha in linhas]
+                tamanhos = [linha[1] for linha in linhas]
+                plano.formato_dados = "pares [defeituosos, tamanho da amostra]"
         else:
             raise ErroDeLeitura(
                 f"Não consegui interpretar os dados da carta {plano.codigo_tipo}. Formatos aceitos "
