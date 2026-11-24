@@ -28,7 +28,7 @@ Engenheiros* (LTC).
 - **Relatório PDF cumulativo** com interpretação em texto, tabelas e gráficos.
 - **Três formas de uso:** menu no terminal, linha de comando e uma página web opcional (Streamlit).
 - **Módulo de entrada:** medições por teclado, arquivo CSV ou porta serial (Arduino/ESP32).
-- **122 testes automatizados**, incluindo o gabarito conferido à mão e 60 conjuntos de dados
+- **139 testes automatizados**, incluindo o gabarito conferido à mão e 60 conjuntos de dados
   aleatórios, rodando no GitHub Actions em Linux e Windows.
 
 ## Em 1 minuto
@@ -61,6 +61,21 @@ O relatório completo gerado pelo programa está em [`docs/relatorio_exemplo.pdf
 |---|---|
 | ![Carta de acompanhamento](docs/img/carta_acompanhamento.png) | ![Histograma de capacidade](docs/img/capacidade.png) |
 
+## Malha fechada com ESP32
+
+O mesmo motor de cálculo controla um processo físico: uma estufa que deve ficar em 35 °C. O ESP32
+mede a temperatura com um DS18B20 e envia subgrupos de 5 leituras. A carta X-barra e R calibra
+o processo e, no acompanhamento, só corrige o PWM do aquecedor quando a carta dá um sinal.
+
+- **CEP remoto:** `python servidor.py` recebe as medições por HTTP, decide o PWM, mostra um painel
+  web e gera o relatório PDF. O ESP32 roda `firmware/esp32_estufa_remoto`.
+- **CEP embarcado:** `firmware/esp32_cep_embarcado` faz tudo no próprio ESP32 e serve a página
+  em `http://192.168.4.1`.
+- **Sem hardware:** `python ferramentas/simulador_esp32.py` faz o papel do ESP32 com uma estufa virtual.
+
+A lógica em C++ do firmware é testada no PC e calcula os mesmos limites que o software em Python.
+Componentes, ligações, gravação e roteiro da demonstração: [docs/HARDWARE.md](docs/HARDWARE.md).
+
 ## Arquitetura
 
 ```text
@@ -75,7 +90,7 @@ graficos · apresentacao · relatorio   saída: PNG, textos e PDF
 ```
 
 O motor de cálculo não importa o menu nem o PDF. Por isso a mesma análise roda no terminal, na
-página web e nos testes, e pode virar um serviço HTTP nos próximos projetos da disciplina.
+página web, nos testes e no servidor da malha fechada com o ESP32.
 
 ## English summary
 
@@ -84,7 +99,7 @@ Phase II monitoring for X-bar/R, I-MR, p, np, c and u charts, applies the Wester
 estimates level shifts and trends, computes detection probability and ARL from each chart's exact
 distribution, reports process capability (Cp, Cpk, Pp, Ppk) and builds a cumulative PDF report.
 It ships with a terminal menu, a CLI, an optional Streamlit web app, serial-port data acquisition
-(Arduino/ESP32) and 122 automated tests. Course project, Electronic Engineering, University of
+(Arduino/ESP32) and 139 automated tests. Course project, Electronic Engineering, University of
 Brasília.
 
 ---
@@ -332,7 +347,11 @@ Os testes conferem, entre outras coisas:
 - as regras de alerta, uma a uma;
 - dezenas de arquivos com formatos variados e dados aleatórios de todos os tipos;
 - o menu, o módulo de entrada (inclusive uma placa serial simulada) e a linha de comando;
-- a interface web, quando o Streamlit está instalado.
+- a interface web, quando o Streamlit está instalado;
+- a malha fechada: aquecimento, calibração e correção de uma perturbação na estufa simulada, e o
+  servidor HTTP de ponta a ponta com o simulador do ESP32;
+- a lógica do firmware em C++ (compilada com o g++, quando existe), que precisa dar os mesmos
+  limites do software em Python.
 
 Para gerar de novo os exemplos simulados de todos os tipos: `python ferramentas/gerar_exemplos.py`.
 
@@ -342,6 +361,7 @@ Para gerar de novo os exemplos simulados de todos os tipos: `python ferramentas/
 cep-cartas-controle/
 ├── main.py                 ponto de entrada (menu ou linha de comando)
 ├── app.py                  interface web opcional (Streamlit)
+├── servidor.py             servidor do CEP remoto em malha fechada (HTTP + painel)
 ├── cep/
 │   ├── config.py           parâmetros (regras, separador decimal, pastas...)
 │   ├── leitura.py          leitura e validação do JSON
@@ -358,17 +378,23 @@ cep-cartas-controle/
 │   ├── apresentacao.py     textos de interpretação e resumo no terminal
 │   ├── processamento.py    sessão: liga leitura, análise, gráficos e relatório
 │   ├── entrada.py          módulo de entrada de medições
+│   ├── malha.py            malha fechada: aquecimento, calibração e ajuste pelos sinais da carta
+│   ├── simulacao.py        estufa simulada (modelo de 1ª ordem com ruído)
 │   └── menu.py             menu interativo
+├── firmware/
+│   ├── esp32_estufa_remoto/    ESP32 que envia os subgrupos ao servidor.py
+│   ├── esp32_cep_embarcado/    ESP32 que faz o CEP sozinho (cep_embarcado.h) e serve a página
+│   └── testes/                 teste da lógica em C++ no PC
 ├── dados/                  arquivos da disciplina (simulado da prova)
 ├── exemplos/               exemplos simulados de todos os tipos de carta
-├── ferramentas/            gerador dos exemplos
+├── ferramentas/            gerador dos exemplos e simulador do ESP32
 ├── tests/                  testes automatizados
 └── .github/workflows/      testes automáticos no GitHub (Linux e Windows, Python 3.9 e 3.13)
 ```
 
 O cálculo (`leitura`, `cartas`, `analise`, `deslocamento`...) não depende do menu nem do PDF.
-Assim o mesmo motor pode ser usado depois em um servidor (projetos de CEP remoto da disciplina),
-recebendo o JSON por HTTP e devolvendo os resultados.
+Por isso o `servidor.py` reaproveita o mesmo motor para receber as medições do ESP32 por HTTP
+e devolver a decisão (malha fechada).
 
 ## 8. Pontos a confirmar com o professor
 
@@ -381,9 +407,9 @@ recebendo o JSON por HTTP e devolvendo os resultados.
 - Controle por confiabilidade e por degradação e estimativa de parâmetros de f.d.p., que estão
   na ementa, não fazem parte desta versão.
 
-## 9. Relato da equipe
+## 9. Relato do Projeto
 
-O relato do que a equipe fez, decidiu e aprendeu está em
+O relato do que eu fez, decidi e aprendi está em
 [`docs/RELATO_DA_EQUIPE.md`](docs/RELATO_DA_EQUIPE.md).
 
 ## 10. Licença
